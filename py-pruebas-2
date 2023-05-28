@@ -9,25 +9,15 @@ b = np.array([5, -2, 7])
 
 print("A:\n", A)
 print("b:\n", b)
+k = 100
 
 D = np.diag(np.diag(A))
-print("D:\n", D)
-
 LU = A - D
-
-print("LU\n", LU)
-
-k = 100
 n = len(A)
-
 x = np.zeros(n)
 H = []
 norm = []
 tol = 1e-4
-
-# print(x)
-# print(norm)
-
 
 for i in range(k):
     D_inv = np.linalg.inv(D)
@@ -47,4 +37,4 @@ for i in range(len(norm)-1):
     print("Vector solucion temporal:\n", H[i], "\n")
     print("Norma:\n", norm[i], "\n")
 print("===================================================================")
-print(x)
+print("Resultado Final: ", x)
