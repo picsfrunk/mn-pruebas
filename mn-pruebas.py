@@ -1,59 +1,47 @@
 import numpy as np
-from scipy.linalg import solve
+import matplotlib.pyplot as plt
 
-def jacobi(A, b, k):
-    n = len(b)
-    x = np.zeros(n)  # Aproximación inicial de las soluciones
-    H = np.zeros((k, n, n))  # Matriz de iteración H
-    v = np.zeros((k+1, n))  # Vector v del método de Jacobi en cada iteración
-    norm = np.zeros(k)  # Norma de cada iteración
+def differences_divided(x, y):
+    n = len(x)
+    coefficients = np.copy(y)
+    for j in range(1, n):
+        for i in range(n-1, j-1, -1):
+            coefficients[i] = (coefficients[i] - coefficients[i-1]) / (x[i] - x[i-j])
+    return coefficients
 
-    for i in range(k):
-        if i == 0:
-            H[i] = np.diag(np.diag(A))  # Extrae los elementos de la diagonal de la matriz A
-        else:
-            H[i] = -np.linalg.inv(np.diag(np.diag(A))) @ (A - np.diag(np.diag(A)))  # Crea una nueva matriz que se usa para actualizar las soluciones
+# Definir los pares de números
+x = np.linspace(-5, 5, 20)
+y = np.sin(x)
+print("x")
+print(x)
+print("y")
+print(y)
 
-        v[i+1] = H[i] @ v[i] + np.linalg.inv(np.diag(np.diag(A))) @ b  # Actualiza el vector de soluciones con la nueva matriz y el vector de términos independientes
-        x = v[i+1]  # Actualización de la aproximación de las soluciones
+# Calcular los coeficientes del polinomio mediante diferencias divididas
+coefficients = differences_divided(x, y)
 
-        print(f"Iteración {i+1}:")
-        print("Matriz H:")
-        print(H[i])
-        print("Vector v:")
-        print(v[i+1])
-        print("Aproximación de las soluciones:")
-        print(x)
+# Crear una función polinómica a partir de los coeficientes
+def polynomial(coefficients, x):
+    n = len(coefficients)
+    result = coefficients[n-1]
+    for i in range(n-2, -1, -1):
+        result = result * (x - x[i]) + coefficients[i]
+    return result
 
-        norm[i] = np.linalg.norm(A @ x - b)  # Calcula la distancia entre el resultado obtenido y el resultado esperado
-        print("Norma:", norm[i])
-        print()
+# Crear puntos para graficar la función interpolada
+x_interpolated = np.linspace(-5, 5, 100)
+y_interpolated = polynomial(coefficients, x_interpolated)
+print("y_interpo")
+print(y_interpolated)
+print("x_interpo")
+print(x_interpolated)
 
-    return H, norm, x
-
-# Matriz de coeficientes
-A = np.array([[4, 1, -1],
-              [3, 5, 1],
-              [1, -2, 6]])
-
-# Vector de términos independientes
-b = [5, -2, 7]
-
-# Número de iteraciones
-k = 5
-
-# Solución utilizando el método de Jacobi
-H, norm, sol_jacobi = jacobi(A, b, k)
-
-# Imprimir las matrices de iteración H y su respectiva norma
-for i in range(k):
-    print(f"Iteración {i+1}:")
-    print("Matriz H:")
-    print(H[i])
-    print("Norma:", norm[i])
-    print()
-
-# Solución exacta utilizando la función solve() de NumPy
-sol_exacta = solve(A, b)
-print("Solución exacta con solve():", sol_exacta)
-print("Solución con jacobi():", sol_jacobi)
+# Graficar los puntos y el polinomio interpolado
+plt.scatter(x, y, label='Puntos')
+plt.plot(x_interpolated, y_interpolated, label='Polinomio Interpolado')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Interpolación de Diferencias Divididas')
+plt.legend()
+plt.grid(True)
+plt.show()
