@@ -1,47 +1,47 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def differences_divided(x, y):
+def calcular_recta_mejor_ajuste(x, y):
     n = len(x)
-    coefficients = np.copy(y)
-    for j in range(1, n):
-        for i in range(n-1, j-1, -1):
-            coefficients[i] = (coefficients[i] - coefficients[i-1]) / (x[i] - x[i-j])
-    return coefficients
+    sum_x = np.sum(x)
+    sum_y = np.sum(y)
+    sum_xy = np.sum(x * y)
+    sum_x_squared = np.sum(x**2)
+    
+    # Calculamos la pendiente (b) y el intercepto (a) de la recta de mejor ajuste
+    b = (n * sum_xy - sum_x * sum_y) / (n * sum_x_squared - sum_x**2)
+    a = (sum_y - b * sum_x) / n
+    
+    return a, b
 
-# Definir los pares de números
-x = np.linspace(-5, 5, 20)
-y = np.sin(x)
-print("x")
-print(x)
-print("y")
-print(y)
+def calcular_error_cuadratico(x, y, a, b):
+    y_pred = a + b * x
+    error_cuadratico = np.sum((y - y_pred)**2)
+    return error_cuadratico
 
-# Calcular los coeficientes del polinomio mediante diferencias divididas
-coefficients = differences_divided(x, y)
+# Leer los puntos en R2
+n = int(input("Ingrese el número de puntos: "))
+x = np.zeros(n)
+y = np.zeros(n)
 
-# Crear una función polinómica a partir de los coeficientes
-def polynomial(coefficients, x):
-    n = len(coefficients)
-    result = coefficients[n-1]
-    for i in range(n-2, -1, -1):
-        result = result * (x - x[i]) + coefficients[i]
-    return result
+for i in range(n):
+    x[i] = float(input(f"Ingrese la coordenada x del punto {i+1}: "))
+    y[i] = float(input(f"Ingrese la coordenada y del punto {i+1}: "))
 
-# Crear puntos para graficar la función interpolada
-x_interpolated = np.linspace(-5, 5, 100)
-y_interpolated = polynomial(coefficients, x_interpolated)
-print("y_interpo")
-print(y_interpolated)
-print("x_interpo")
-print(x_interpolated)
+# Calcular la recta de mejor ajuste
+a, b = calcular_recta_mejor_ajuste(x, y)
 
-# Graficar los puntos y el polinomio interpolado
-plt.scatter(x, y, label='Puntos')
-plt.plot(x_interpolated, y_interpolated, label='Polinomio Interpolado')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.title('Interpolación de Diferencias Divididas')
+# Calcular el error cuadrático
+error_cuadratico = calcular_error_cuadratico(x, y, a, b)
+
+# Graficar los puntos y la recta de mejor ajuste
+plt.scatter(x, y, color='blue', label='Puntos')
+plt.plot(x, a + b * x, color='red', label='Recta de mejor ajuste')
+plt.xlabel('X')
+plt.ylabel('Y')
 plt.legend()
-plt.grid(True)
 plt.show()
+
+# Imprimir resultados
+print(f"La recta de mejor ajuste es: Y = {a} + {b} * X")
+print(f"El error cuadrático total es: {error_cuadratico}")
